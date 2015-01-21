@@ -15,13 +15,19 @@ defmodule Base58Check do
 	defp encode58(integer, acc) do
 		encode58(div(integer, 58), [do_encode58(rem(integer, 58)) | acc])
 	end	
-	
-	def encode58check(prefix, data) when is_integer(prefix) and is_integer(data) do
-		prefix = :binary.encode_unsigned(prefix)
-		data = :binary.encode_unsigned(data)
-		versioned_data = prefix <> data
 
+	def encode58check(prefix, data) when is_binary(prefix) and is_binary(data) do
+		data = case Base.decode16(String.upcase(data)) do
+				{:ok, bin} 	->	bin
+				:error 			->	data
+			end
+		versioned_data = prefix <> data
 		<<checksum::binary-size(4), _rest::binary-size(28)>> = versioned_data |> :erlsha2.sha256() |> :erlsha2.sha256()
 		encode58((versioned_data <> checksum))
+	end
+	def encode58check(prefix, data) do
+		prefix = if is_integer(prefix), do: :binary.encode_unsigned(prefix), else: prefix
+		data = if is_integer(data), do: :binary.encode_unsigned(data), else: data
+		encode58check(prefix, data)
 	end
 end
