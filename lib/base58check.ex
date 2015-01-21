@@ -8,13 +8,19 @@ defmodule Base58Check do
 	end
 
 	def encode58(data) do
+		encoded_zeroes = convert_leading_zeroes(data, [])
 		integer = if is_binary(data), do: :binary.decode_unsigned(data), else: data
-		encode58(integer, [])
+		encode58(integer, [], encoded_zeroes)
 	end
-	defp encode58(0, acc), do: to_string(acc)
-	defp encode58(integer, acc) do
-		encode58(div(integer, 58), [do_encode58(rem(integer, 58)) | acc])
-	end	
+	defp encode58(0, acc, encoded_zeroes), do: to_string([encoded_zeroes|acc])
+	defp encode58(integer, acc, encoded_zeroes) do
+		encode58(div(integer, 58), [do_encode58(rem(integer, 58)) | acc], encoded_zeroes)
+	end
+	defp convert_leading_zeroes(<<0>> <> data, encoded_zeroes) do
+		encoded_zeroes = ['1'|encoded_zeroes]
+		convert_leading_zeroes(data, encoded_zeroes)
+	end
+	defp convert_leading_zeroes(_data, encoded_zeroes), do: encoded_zeroes
 
 	def decode58(code) when is_binary(code) do
 		decode58(to_char_list(code), 0)
@@ -36,6 +42,7 @@ defmodule Base58Check do
 	end
 	def encode58check(prefix, data) do
 		prefix = if is_integer(prefix), do: :binary.encode_unsigned(prefix), else: prefix
+		IO.inspect prefix
 		data = if is_integer(data), do: :binary.encode_unsigned(data), else: data
 		encode58check(prefix, data)
 	end

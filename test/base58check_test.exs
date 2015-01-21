@@ -38,6 +38,8 @@ defmodule Base58CheckTest do
 
   test "encode58check/2 accepts hex" do
     assert encode58check(128, @test_hex) == @test_base58
+    btc_address = "1EUbuiBzfdq939oPArvPGe6sRcUskoYCexXbRk1R6r2hwNdAP2"
+    assert encode58check(0, @test_hex) == btc_address
   end
 
   test "decode58check/1 accepts hex and returns prefix and payload" do
@@ -47,7 +49,7 @@ defmodule Base58CheckTest do
   end
 
   test "decode58check/1 raises when checksum doesn't match" do
-    assert_raise ArgumentError, fn -> 
+    assert_raise ArgumentError, fn ->
     	decode58check("5J3mBbAH58CpQ3Y5RNJpUKPE62SQ5tfcvU2JpbnkeyhfsYB1Jc")
     end
   end
