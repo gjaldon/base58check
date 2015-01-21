@@ -40,13 +40,13 @@ defmodule Base58Check do
 		encode58check(prefix, data)
 	end
 
-	def decode58check(code) when is_binary(code) do
+	def decode58check(code) do
 		decoded_bin = decode58(code) |> :binary.encode_unsigned()
 		payload_size = byte_size(decoded_bin) - 5
 
 		<<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(4)>> = decoded_bin
 		if generate_checksum(prefix <> payload) == checksum do
-			payload
+			{prefix, payload}
 		else
 			raise ArgumentError, "checksum doesn't match"
 		end
