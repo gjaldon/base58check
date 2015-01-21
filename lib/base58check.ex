@@ -8,13 +8,22 @@ defmodule Base58Check do
 	end
 
 	def encode58(data) do
-		integer = :binary.decode_unsigned(data)
+		integer = if is_binary(data), do: :binary.decode_unsigned(data), else: data
 		encode58(integer, [])
 	end
 	defp encode58(0, acc), do: to_string(acc)
 	defp encode58(integer, acc) do
 		encode58(div(integer, 58), [do_encode58(rem(integer, 58)) | acc])
 	end	
+
+	def decode58(data) when is_binary(data) do
+		decode58(to_char_list(data), 0)
+	end
+	defp decode58([], acc), do: acc
+	defp decode58([c|codestring], acc) do
+		decode58(codestring, (acc * 58) + do_decode58(c))
+	end
+	def decode58(data), do: raise(ArgumentError, "expects base58-encoded binary")
 
 	def encode58check(prefix, data) when is_binary(prefix) and is_binary(data) do
 		data = case Base.decode16(String.upcase(data)) do
