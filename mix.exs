@@ -1,29 +1,30 @@
-defmodule Base58check.Mixfile do
+defmodule Base58Check.Mixfile do
   use Mix.Project
 
   def project do
     [app: :base58check,
-     version: "0.0.1",
+     version: "0.1.0",
      elixir: "~> 1.0",
-     deps: deps]
+     deps: deps,
+     package: package,
+     name: "Base58Check",
+     source_url: "https://github.com/gjaldon/base58check",
+     homepage_url: "https://github.com/gjaldon/base58check",
+     description: """
+     Elixir implementation of Base58Check encoding meant for Bitcoin
+     """]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
     [applications: [:logger]]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type `mix help deps` for more examples and options
+  defp package do
+    [contributors: ["Gabriel Jaldon"],
+     licenses: ["MIT"],
+     links: %{github: "https://github.com/gjaldon/base58check"}]
+  end
+
   defp deps do
     [{:erlsha2, github: "vinoski/erlsha2"}]
   end
