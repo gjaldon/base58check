@@ -5,7 +5,7 @@ Base58Check
 
 Usage
 =====
-Base85Check exposes 4 functions: `encode58/1, decode58/1, encode58check/2, decode58check/1`. `encode58check/2` accepts
+Base58Check exposes 4 functions: `encode58/1, decode58/1, encode58check/2, decode58check/1`. `encode58check/2` accepts
 a hex string, binary or integer and returns base58-encoded string. `decode58check/1` accepts a base58-encoded string
 and returns a binary. 
 
