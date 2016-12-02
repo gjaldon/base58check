@@ -7,6 +7,8 @@ defmodule Base58Check do
     defp do_decode58(unquote(encoding)), do: unquote(value)
   end
 
+  defp do_decode58(c), do: raise(ArgumentError, "illegal character #{c}")
+
   def encode58(data) do
     encoded_zeroes = convert_leading_zeroes(data, [])
     integer = if is_binary(data), do: :binary.decode_unsigned(data), else: data
@@ -49,18 +51,23 @@ defmodule Base58Check do
 
   def decode58check(code, length \\ 25) do
     decoded_bin = decode58(code) |> :binary.encode_unsigned()
-    if byte_size(decoded_bin) > length do
-      raise ArgumentError, "address of size #{byte_size(decoded_bin)} is too long, expected #{length}"
+    size = byte_size(decoded_bin)
+    checksum_size = 4
+    if size < checksum_size do
+      raise ArgumentError, "address of size #{size} is too short, expected at least #{checksum_size}"
+    end
+    if size > length do
+      raise ArgumentError, "address of size #{size} is too long, expected #{length}"
     end
     payload_size = length - 5
 
-    pad = if byte_size(decoded_bin) < length do
+    padding = if size < length do
       for _ <- 1..(length - byte_size(decoded_bin)), into: <<>>, do: <<0>>
     else
       <<>>
     end
 
-    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(4)>> = pad <> decoded_bin
+    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(checksum_size)>> = padding <> decoded_bin
 
     if generate_checksum(prefix <> payload) == checksum do
       {prefix, payload}
