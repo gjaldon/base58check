@@ -47,11 +47,21 @@ defmodule Base58Check do
     encode58check(prefix, data)
   end
 
-  def decode58check(code) do
+  def decode58check(code, length \\ 25) do
     decoded_bin = decode58(code) |> :binary.encode_unsigned()
-    payload_size = byte_size(decoded_bin) - 5
+    if byte_size(decoded_bin) > length do
+      raise ArgumentError, "address of size #{byte_size(decoded_bin)} is too long, expected #{length}"
+    end
+    payload_size = length - 5
 
-    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(4)>> = decoded_bin
+    pad = if byte_size(decoded_bin) < length do
+      for _ <- 1..(length - byte_size(decoded_bin)), into: <<>>, do: <<0>>
+    else
+      <<>>
+    end
+
+    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(4)>> = pad <> decoded_bin
+
     if generate_checksum(prefix <> payload) == checksum do
       {prefix, payload}
     else

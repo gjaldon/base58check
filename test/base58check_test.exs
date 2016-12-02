@@ -43,14 +43,32 @@ defmodule Base58CheckTest do
   end
 
   test "decode58check/1 accepts hex and returns prefix and payload" do
-    {prefix, payload} = decode58check(@test_base58)
+    {prefix, payload} = decode58check(@test_base58, 37)
     assert Base.encode16(payload, case: :lower) == @test_hex
     assert :binary.decode_unsigned(prefix) == 128
+  end
+
+  test "decode58check/1 raises if address too long" do
+    assert_raise ArgumentError, fn ->
+      decode58check(@test_base58)
+    end
   end
 
   test "decode58check/1 raises when checksum doesn't match" do
     assert_raise ArgumentError, fn ->
       decode58check("5J3mBbAH58CpQ3Y5RNJpUKPE62SQ5tfcvU2JpbnkeyhfsYB1Jc")
     end
+  end
+
+  test "decode58check/1 does not raise for valid address 1" do
+    decode58check("1111111111111111111114oLvT2")
+  end
+
+  test "decode58check/1 does not raise for valid address 2" do
+    decode58check("1AGNa15ZQXAZUgFiqJ2i7Z2DPU2J6hW62i")
+  end
+
+  test "decode58check/1 does not raise for valid address 3" do
+    decode58check("3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
   end
 end
