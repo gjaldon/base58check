@@ -23,9 +23,9 @@ defmodule Base58Check do
   defp convert_leading_zeroes(_data, encoded_zeroes), do: encoded_zeroes
 
   def decode58(code) when is_binary(code) do
-    decode58(to_char_list(code), 0)
+    decode58(to_charlist(code), 0)
   end
-  def decode58(code), do: raise(ArgumentError, "expects base58-encoded binary")
+  def decode58(_code), do: raise(ArgumentError, "expects base58-encoded binary")
   defp decode58([], acc), do: acc
   defp decode58([c|code], acc) do
     decode58(code, (acc * 58) + do_decode58(c))
@@ -42,7 +42,6 @@ defmodule Base58Check do
   end
   def encode58check(prefix, data) do
     prefix = if is_integer(prefix), do: :binary.encode_unsigned(prefix), else: prefix
-    IO.inspect prefix
     data = if is_integer(data), do: :binary.encode_unsigned(data), else: data
     encode58check(prefix, data)
   end
@@ -60,7 +59,12 @@ defmodule Base58Check do
   end
 
   defp generate_checksum(versioned_data) do
-    <<checksum::binary-size(4), _rest::binary-size(28)>> = versioned_data |> :erlsha2.sha256() |> :erlsha2.sha256()
+    <<checksum::binary-size(4), _rest::binary-size(28)>> = versioned_data |> sha256() |> sha256()
     checksum
+  end
+
+  defp sha256(data) do
+    :sha256
+    |> :crypto.hash(data)
   end
 end
