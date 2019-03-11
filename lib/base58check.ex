@@ -18,6 +18,7 @@ defmodule Base58Check do
   defp encode58(integer, acc, encoded_zeroes) do
     encode58(div(integer, 58), [do_encode58(rem(integer, 58)) | acc], encoded_zeroes)
   end
+
   defp convert_leading_zeroes(<<0>> <> data, encoded_zeroes) do
     encoded_zeroes = ['1'|encoded_zeroes]
     convert_leading_zeroes(data, encoded_zeroes)

@@ -42,39 +42,39 @@ defmodule Base58CheckTest do
     assert encode58check(0, @test_hex) == btc_address
   end
 
-  test "decode58check/1 accepts hex and returns prefix and payload" do
+  test "decode58check/1 accepts hex and returns prefix and payload for valid address with length 37" do
     {prefix, payload} = decode58check(@test_base58, 37)
     assert Base.encode16(payload, case: :lower) == @test_hex
     assert :binary.decode_unsigned(prefix) == 128
   end
 
   test "decode58check/1 raises if address too long" do
-    assert_raise ArgumentError, fn ->
+    assert_raise ArgumentError, "address of size 37 is too long, expected 25", fn ->
       decode58check(@test_base58)
     end
   end
 
   test "decode58check/1 raises if address too short" do
-    assert_raise ArgumentError, fn ->
+    assert_raise ArgumentError, "address of size 1 is too short, expected at least 4", fn ->
       decode58check("1e")
     end
   end
 
   test "decode58check/1 raises when checksum doesn't match" do
-    assert_raise ArgumentError, fn ->
-      decode58check("5J3mBbAH58CpQ3Y5RNJpUKPE62SQ5tfcvU2JpbnkeyhfsYB1Jc")
+    assert_raise ArgumentError, "checksum doesn't match", fn ->
+      decode58check("5J3mBbAH58CpQ3Y5RNJpUKPE62SQ5tfcvU2JpbnkeyhfsYB1Jc", 37)
     end
   end
 
-  test "decode58check/1 does not raise for valid address 1" do
+  test "decode58check/1 does not raise for valid BTC address 1" do
     decode58check("1111111111111111111114oLvT2")
   end
 
-  test "decode58check/1 does not raise for valid address 2" do
+  test "decode58check/1 does not raise for valid BTC address 2" do
     decode58check("1AGNa15ZQXAZUgFiqJ2i7Z2DPU2J6hW62i")
   end
 
-  test "decode58check/1 does not raise for valid address 3" do
+  test "decode58check/1 does not raise for valid BTC address 3" do
     decode58check("3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
   end
 
