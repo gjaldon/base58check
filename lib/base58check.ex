@@ -48,17 +48,20 @@ defmodule Base58Check do
     encode58check(prefix, data)
   end
 
-  def decode58check(code, length \\ 25) do
+  @btc_address_length 25
+  @prefix_size 1 # this is the one byte of version/application that is at the start of the base58check code
+  @checksum_size 4 # the checksum in base58check is 4 bytes in size
+  def decode58check(code, length \\ @btc_address_length) do
     decoded_bin = decode58(code) |> :binary.encode_unsigned()
     size = byte_size(decoded_bin)
-    checksum_size = 4
-    if size < checksum_size do
-      raise ArgumentError, "address of size #{size} is too short, expected at least #{checksum_size}"
+
+    if size < @checksum_size do
+      raise ArgumentError, "address of size #{size} is too short, expected at least #{@checksum_size}"
     end
     if size > length do
       raise ArgumentError, "address of size #{size} is too long, expected #{length}"
     end
-    payload_size = length - 5
+    payload_size = length - (@checksum_size + @prefix_size)
 
     padding = if size < length do
       for _ <- 1..(length - byte_size(decoded_bin)), into: <<>>, do: <<0>>
@@ -66,7 +69,7 @@ defmodule Base58Check do
       <<>>
     end
 
-    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(checksum_size)>> = padding <> decoded_bin
+    <<prefix::binary-size(1), payload::binary-size(payload_size), checksum::binary-size(@checksum_size)>> = padding <> decoded_bin
 
     if generate_checksum(prefix <> payload) == checksum do
       {prefix, payload}
@@ -81,7 +84,6 @@ defmodule Base58Check do
   end
 
   defp sha256(data) do
-    :sha256
-    |> :crypto.hash(data)
+    :crypto.hash(:sha256, data)
   end
 end
