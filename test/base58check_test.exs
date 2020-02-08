@@ -55,7 +55,7 @@ defmodule Base58CheckTest do
   end
 
   test "decode58check/1 raises if address too short" do
-    assert_raise ArgumentError, "address of size 1 is too short, expected at least 4", fn ->
+    assert_raise ArgumentError, "address of size 2 is too short, expected 25", fn ->
       decode58check("1e")
     end
   end
@@ -81,6 +81,14 @@ defmodule Base58CheckTest do
   test "decode58check/1 raises on invalid chars in address" do
     assert_raise ArgumentError, fn ->
       decode58check("0J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
+    end
+  end
+
+  test "decode58check/1 raises on address with leading `1` dropped" do
+    decode58check("1oNbBopmpvNVLxgDpVe7Lye15LeCBRmXS")
+
+    assert_raise ArgumentError, fn ->
+      decode58check("oNbBopmpvNVLxgDpVe7Lye15LeCBRmXS")
     end
   end
 end
